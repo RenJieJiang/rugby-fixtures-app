@@ -1,16 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import Link from "next/link";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -25,9 +18,42 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.className} bg-amber-50 min-h-screen flex flex-col`}
       >
-        {children}
+        <header>
+          <nav
+            aria-label="Header Navigation"
+            className="p-4 bg-blue-900 text-white"
+          >
+            <div className="flex items-center space-x-4 max-w-7xl mx-auto gap-12">
+              <div className="flex flex-shrink-0 items-center">
+                <Link href="/" className="text-2xl font-bold">
+                  RUGBY Fixtures App
+                </Link>
+              </div>
+              <div className="hidden sm:flex sm:space-x-8">
+                <Link href="/" className="hover:underline">
+                  Home
+                </Link>
+                <Link href="/fixtures" className="hover:underline">
+                  Fixtures
+                </Link>
+                <Link href="/upload" className="hover:underline">
+                  Upload Data
+                </Link>
+              </div>
+            </div>
+          </nav>
+        </header>
+        <main className="flex-grow flex flex-col">{children}</main>
+        <footer className="bg-blue-900 shadow-inner py-2 mt-auto">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p className="text-center text-gray-100 text-xs">
+              &copy; {new Date().getFullYear()} Rugby Fixtures App. <span className="hidden sm:inline">All rights
+              reserved.</span>
+            </p>
+          </div>
+        </footer>
       </body>
     </html>
   );
