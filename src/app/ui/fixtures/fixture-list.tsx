@@ -1,4 +1,4 @@
-import { Fixture } from '@/app/lib/definitions';
+import { Fixture } from '@/app/lib/models/fixture';
 import Link from 'next/link';
 
 export default function FixtureList({ fixtures }: { fixtures: Fixture[] }) {

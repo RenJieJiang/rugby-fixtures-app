@@ -1,21 +1,9 @@
-import UploadForm from '../ui/upload/upload-form';
 import Link from 'next/link';
-import { Fixture } from '@/app/lib/definitions';
+import { FixtureSchema } from '../lib/models/fixture';
+import UploadForm from '../ui/upload/upload-form';
 
 export default function UploadPage() {
-  // Create a sample fixture object to extract keys at runtime
-  const sampleFixture: Fixture = {
-    fixture_mid: '',
-    season: 0,
-    competition_name: '',
-    fixture_datetime: new Date(),
-    fixture_round: 0,
-    home_team: '',
-    away_team: ''
-  };
-  
-  // Get the keys from the real object
-  const fixtureColumns = Object.keys(sampleFixture).join(', ');
+  const fixtureKeysString = Object.keys(FixtureSchema.shape).join(', ');
 
   return (
     <main className="flex flex-col flex-grow h-full items-center justify-center p-6 bg-gray-50">
@@ -33,7 +21,7 @@ export default function UploadPage() {
           <h2 id="instructions-heading" className="font-medium text-blue-900">Instructions:</h2>
           <p className="mt-1 text-sm text-blue-800">
             Upload a CSV file containing rugby fixture data. The CSV should have the following columns:
-            {fixtureColumns}
+            {fixtureKeysString}
           </p>
           <nav className="mt-3" aria-label="Resources">
             <Link 

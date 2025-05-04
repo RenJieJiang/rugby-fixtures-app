@@ -2,7 +2,6 @@ import Search from '../ui/fixtures/search';
 import FixtureList from '../ui/fixtures/fixture-list';
 import { searchFixtures } from '../lib/actions/fixtures';
 import Link from 'next/link';
-import { Fixture } from '../lib/definitions';
 
 export default async function FixturesPage(props: {
   searchParams?: Promise<{
@@ -13,9 +12,6 @@ export default async function FixturesPage(props: {
   const searchParams = await props.searchParams;
   const query = searchParams?.query || '';
   const { success, fixtures, message } = await searchFixtures(query);
-  
-  // Type assertion to ensure TypeScript recognizes the fixtures array correctly
-  const typedFixtures = (fixtures || []) as unknown as Fixture[];
 
   return (
     <main className="flex flex-col p-6">
@@ -38,7 +34,7 @@ export default async function FixturesPage(props: {
       {success ? (
         <section aria-labelledby="fixtures-heading" className="bg-white shadow-sm rounded-lg overflow-hidden">
           <h2 id="fixtures-heading" className="sr-only">Fixture results</h2>
-          <FixtureList fixtures={typedFixtures} />
+          <FixtureList fixtures={fixtures || []} />
         </section>
       ) : (
         <section aria-labelledby="error-heading" role="alert" className="p-4 bg-red-50 rounded-md">

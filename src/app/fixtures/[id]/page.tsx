@@ -11,11 +11,8 @@ export default async function FixtureDetailPage(props: { params: Promise<{ id: s
     notFound();
   }
 
-  // Type assertion to ensure TypeScript recognizes the fixture properties
-  const typedFixture = fixture;
-
   // Format the date for display
-  const fixtureDate = new Date(typedFixture.fixture_datetime);
+  const fixtureDate = new Date(fixture.fixture_datetime);
   const formattedDate = fixtureDate.toLocaleDateString(undefined, {
     weekday: 'long',
     year: 'numeric',
@@ -39,7 +36,7 @@ export default async function FixtureDetailPage(props: { params: Promise<{ id: s
         <header className="flex justify-between items-center border-b pb-4 mb-6">
           <h1 className="text-2xl font-bold text-blue-600">Match Details</h1>
           <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-            Round {typedFixture.fixture_round}
+            Round {fixture.fixture_round}
           </span>
         </header>
         
@@ -48,14 +45,14 @@ export default async function FixtureDetailPage(props: { params: Promise<{ id: s
             <h2 id="teams-heading" className="sr-only">Teams Information</h2>
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div className="text-center flex-1">
-                <p className="font-bold text-lg text-gray-600">{typedFixture.home_team}</p>
+                <p className="font-bold text-lg text-gray-600">{fixture.home_team}</p>
                 <p className="text-sm text-gray-500">Home Team</p>
               </div>
               
               <div className="text-center text-2xl font-bold px-4 text-gray-600">vs</div>
               
               <div className="text-center flex-1">
-                <p className="font-bold text-lg text-gray-600">{typedFixture.away_team}</p>
+                <p className="font-bold text-lg text-gray-600">{fixture.away_team}</p>
                 <p className="text-sm text-gray-500">Away Team</p>
               </div>
             </div>
@@ -79,15 +76,15 @@ export default async function FixtureDetailPage(props: { params: Promise<{ id: s
                 </div>
                 <div>
                   <dt className="inline font-medium">Competition:</dt>
-                  <dd className="inline ml-1">{typedFixture.competition_name}</dd>
+                  <dd className="inline ml-1">{fixture.competition_name}</dd>
                 </div>
                 <div>
                   <dt className="inline font-medium">Season:</dt>
-                  <dd className="inline ml-1">{typedFixture.season}</dd>
+                  <dd className="inline ml-1">{fixture.season}</dd>
                 </div>
                 <div>
                   <dt className="inline font-medium">Match ID:</dt>
-                  <dd className="inline ml-1">{typedFixture.fixture_mid}</dd>
+                  <dd className="inline ml-1">{fixture.fixture_mid}</dd>
                 </div>
               </dl>
             </section>

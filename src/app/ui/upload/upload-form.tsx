@@ -2,15 +2,35 @@
 
 import { useState, useRef } from 'react';
 import { uploadCSV } from '../../lib/actions/upload';
+import { CSVFixture } from '../../lib/models/fixture';
+import { ValidationErrorFormat } from '../../lib/actions/upload';
+
+// Import the ValidationErrorFormat type or define it if not exported
+type InvalidRecord = {
+  rowNumber: number;
+  data: CSVFixture;
+  errors: ValidationErrorFormat;
+};
+
+type UploadResult = {
+  success?: boolean;
+  message?: string;
+  count?: number;
+  duplicates?: number;
+  invalidCount?: number;
+  invalidRecords?: InvalidRecord[];
+};
 
 export default function UploadForm() {
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadResult, setUploadResult] = useState<{ success?: boolean; message?: string; count?: number } | null>(null);
+  const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   
   async function handleSubmit(formData: FormData) {
     setIsUploading(true);
     setUploadResult(null);
+    setShowDetails(false);
     
     try {
       const result = await uploadCSV(formData);
@@ -27,6 +47,31 @@ export default function UploadForm() {
     } finally {
       setIsUploading(false);
     }
+  }
+
+  function toggleDetails() {
+    setShowDetails(prev => !prev);
+  }
+
+  // Format error details for display
+  function formatErrorDetails(errors: ValidationErrorFormat): string {
+    if (errors._errors) {
+      return errors._errors.join(', ');
+    }
+    
+    return Object.entries(errors)
+      .filter(([key]) => key !== '_errors')
+      .map(([key, errorValue]) => {
+        // Improved type checking to correctly narrow the type
+        if (typeof errorValue === 'object' && 
+            errorValue !== null && 
+            '_errors' in errorValue && 
+            Array.isArray(errorValue._errors)) {
+          return `${key}: ${errorValue._errors.join(', ')}`;
+        }
+        return `${key}: Invalid value`;
+      })
+      .join('; ');
   }
 
   return (
@@ -56,9 +101,9 @@ export default function UploadForm() {
                         file:bg-blue-50 file:text-blue-700
                         hover:file:bg-blue-100"
             />
-            {/* <p className="mt-1 text-sm text-gray-400">
-              Upload a CSV file containing rugby fixture data
-            </p> */}
+            <p className="mt-1 text-sm text-gray-400">
+              Upload a CSV file with columns: fixture_mid, season, competition_name, fixture_datetime, fixture_round, home_team, away_team
+            </p>
           </div>
         
           <button
@@ -73,12 +118,55 @@ export default function UploadForm() {
       </form>
 
       {uploadResult && (
-        <aside className={`mt-6 p-4 rounded-md ${uploadResult.success ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`} 
-               role="status" 
-               aria-live="polite">
+        <aside 
+          className={`mt-6 p-4 rounded-md ${uploadResult.success ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`} 
+          role="status" 
+          aria-live="polite"
+        >
           <p className="text-sm font-medium">{uploadResult.message}</p>
-          {uploadResult.success && uploadResult.count && (
-            <p className="text-sm mt-1">Successfully processed {uploadResult.count} fixtures.</p>
+          
+          {uploadResult.success ? (
+            <div className="mt-2 text-sm">
+              <p>Successfully inserted {uploadResult.count} fixtures.</p>
+              {(uploadResult.duplicates && uploadResult.duplicates > 0) && (
+                <p>{uploadResult.duplicates} duplicates were skipped.</p>
+              )}
+            </div>
+          ) : null}
+          
+          {/* Show invalid records if available */}
+          {uploadResult.invalidRecords && uploadResult.invalidRecords.length > 0 && (
+            <div className="mt-3">
+              <button 
+                onClick={toggleDetails}
+                className="text-sm font-medium underline focus:outline-none"
+                aria-expanded={showDetails}
+                aria-controls="error-details"
+              >
+                {showDetails ? 'Hide error details' : 'Show error details'}
+              </button>
+              
+              {showDetails && (
+                <div id="error-details" className="mt-2 text-sm bg-white bg-opacity-50 p-3 rounded max-h-60 overflow-auto">
+                  <h3 className="font-medium mb-2">Invalid records:</h3>
+                  <ul className="space-y-3">
+                    {uploadResult.invalidRecords.map((record, index) => (
+                      <li key={index} className="border-b border-red-200 pb-2">
+                        <div><strong>Row {record.rowNumber}:</strong></div>
+                        <div className="text-xs">
+                          <pre className="whitespace-pre-wrap">
+                            {formatErrorDetails(record.errors)}
+                          </pre>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  {uploadResult.invalidCount && uploadResult.invalidCount > uploadResult.invalidRecords.length && (
+                    <p className="mt-2 italic">Showing {uploadResult.invalidRecords.length} of {uploadResult.invalidCount} invalid records</p>
+                  )}
+                </div>
+              )}
+            </div>
           )}
         </aside>
       )}
