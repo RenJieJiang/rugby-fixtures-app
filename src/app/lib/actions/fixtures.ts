@@ -8,35 +8,45 @@ import {
   FixtureArraySchema 
 } from '../models/fixture';
 
-export async function searchFixtures(query: string): Promise<{ 
+export async function searchFixtures(
+  query: string, 
+  page: number = 1, 
+  pageSize: number = 10
+): Promise<{ 
   success: boolean; 
   fixtures?: Fixture[]; 
-  message?: string 
+  message?: string;
+  totalPages?: number;
+  totalItems?: number;
 }> {
   try {
     await connectToDatabase();
     
-    let fixturesData;
-    if (!query || query.trim() === '') {
-      // Return all fixtures if no query
-      fixturesData = await FixtureModel.find({})
-        .sort({ fixture_datetime: 1 })
-        .limit(50)
-        .lean();
-    } else {
-      // Search by team name (either home or away)
-      fixturesData = await FixtureModel.find({
-        $or: [
-          { home_team: { $regex: query, $options: 'i' } },
-          { away_team: { $regex: query, $options: 'i' } }
-        ]
-      })
+    // Calculate skip value for pagination
+    const skip = (page - 1) * pageSize;
+    
+    // Base query
+    const baseQuery = !query || query.trim() === '' 
+      ? {} 
+      : {
+          $or: [
+            { home_team: { $regex: query, $options: 'i' } },
+            { away_team: { $regex: query, $options: 'i' } }
+          ]
+        };
+    
+    // Get total count for pagination
+    const totalItems = await FixtureModel.countDocuments(baseQuery);
+    const totalPages = Math.ceil(totalItems / pageSize);
+    
+    // Execute query with pagination
+    const fixturesData = await FixtureModel.find(baseQuery)
       .sort({ fixture_datetime: 1 })
+      .skip(skip)
+      .limit(pageSize)
       .lean();
-    }
     
     // Validate the results against our schema
-    // Since we're using .strip(), MongoDB fields will be automatically removed
     const validation = FixtureArraySchema.safeParse(fixturesData);
     
     if (!validation.success) {
@@ -47,8 +57,13 @@ export async function searchFixtures(query: string): Promise<{
       };
     }
     
-    // Return the validated data - MongoDB fields are already stripped
-    return { success: true, fixtures: validation.data };
+    // Return the validated data with pagination info
+    return { 
+      success: true, 
+      fixtures: validation.data,
+      totalPages,
+      totalItems
+    };
   } catch (error) {
     console.error('Search error:', error);
     return { 
