@@ -102,7 +102,7 @@ export default function UploadForm() {
                         hover:file:bg-blue-100"
             />
             <p className="mt-1 text-sm text-gray-400">
-              Upload a CSV file with columns: fixture_mid, season, competition_name, fixture_datetime, fixture_round, home_team, away_team
+              
             </p>
           </div>
         
@@ -131,15 +131,18 @@ export default function UploadForm() {
               {(uploadResult.duplicates && uploadResult.duplicates > 0) && (
                 <p>{uploadResult.duplicates} duplicates were skipped.</p>
               )}
+              {(uploadResult.invalidCount && uploadResult.invalidCount > 0) && (
+                <p className="text-amber-600">{uploadResult.invalidCount} records had validation errors.</p>
+              )}
             </div>
           ) : null}
           
-          {/* Show invalid records if available */}
+          {/* Show invalid records if available - regardless of success state */}
           {uploadResult.invalidRecords && uploadResult.invalidRecords.length > 0 && (
             <div className="mt-3">
               <button 
                 onClick={toggleDetails}
-                className="text-sm font-medium underline focus:outline-none"
+                className={`text-sm font-medium underline focus:outline-none ${!uploadResult.success ? 'text-red-800' : 'text-amber-600'}`}
                 aria-expanded={showDetails}
                 aria-controls="error-details"
               >
@@ -154,8 +157,11 @@ export default function UploadForm() {
                       <li key={index} className="border-b border-red-200 pb-2">
                         <div><strong>Row {record.rowNumber}:</strong></div>
                         <div className="text-xs">
-                          <pre className="whitespace-pre-wrap">
-                            {formatErrorDetails(record.errors)}
+                          <pre className="whitespace-pre-wrap break-all">
+                            Data: {JSON.stringify(record.data, null, 2)}
+                          </pre>
+                          <pre className="whitespace-pre-wrap mt-1 text-red-600">
+                            Errors: {formatErrorDetails(record.errors)}
                           </pre>
                         </div>
                       </li>

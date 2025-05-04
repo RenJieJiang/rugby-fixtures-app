@@ -20,8 +20,10 @@ export default function UploadPage() {
         <aside className="mt-8 p-4 bg-blue-50 rounded-lg" aria-labelledby="instructions-heading">
           <h2 id="instructions-heading" className="font-medium text-blue-900">Instructions:</h2>
           <p className="mt-1 text-sm text-blue-800">
-            Upload a CSV file containing rugby fixture data. The CSV should have the following columns:
-            {fixtureKeysString}
+            Upload a CSV file containing rugby fixture data. Required columns: 
+            <span className="block font-bold">
+              {fixtureKeysString}
+            </span>
           </p>
           <nav className="mt-3" aria-label="Resources">
             <Link 
