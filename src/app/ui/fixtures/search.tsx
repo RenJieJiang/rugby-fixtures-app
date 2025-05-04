@@ -39,7 +39,7 @@ export default function Search() {
           handleSearch(newValue);
         }}
         placeholder="Search teams..."
-        className="block w-full rounded-md border border-gray-200 py-2.5 pl-10 pr-12 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+        className="block w-full rounded-md border border-gray-400 py-2.5 pl-10 pr-12 text-gray-800 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
       />
       <div className="absolute inset-y-0 left-0 flex items-center pl-3">
         <svg className="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

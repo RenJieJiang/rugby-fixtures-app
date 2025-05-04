@@ -98,18 +98,16 @@ export default function UploadForm() {
                         file:mr-4 file:py-2 file:px-4
                         file:rounded-md file:border-0
                         file:text-sm file:font-semibold
-                        file:bg-blue-50 file:text-blue-700
-                        hover:file:bg-blue-100"
+                        file:bg-blue-100 file:text-blue-700
+                        hover:file:bg-blue-200 file:cursor-pointer
+                        file:transition-colors file:duration-200"
             />
-            <p className="mt-1 text-sm text-gray-400">
-              
-            </p>
           </div>
         
           <button
             type="submit"
             disabled={isUploading}
-            className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
+            className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300 transition-colors duration-200"
             aria-busy={isUploading}
           >
             {isUploading ? 'Uploading...' : 'Upload CSV'}
@@ -128,21 +126,21 @@ export default function UploadForm() {
           {uploadResult.success ? (
             <div className="mt-2 text-sm">
               <p>Successfully inserted {uploadResult.count} fixtures.</p>
-              {(uploadResult.duplicates && uploadResult.duplicates > 0) && (
+              {(uploadResult.duplicates ?? 0) > 0 && (
                 <p>{uploadResult.duplicates} duplicates were skipped.</p>
               )}
-              {(uploadResult.invalidCount && uploadResult.invalidCount > 0) && (
+              {(uploadResult.invalidCount ?? 0) > 0 && (
                 <p className="text-amber-600">{uploadResult.invalidCount} records had validation errors.</p>
               )}
             </div>
           ) : null}
           
           {/* Show invalid records if available - regardless of success state */}
-          {uploadResult.invalidRecords && uploadResult.invalidRecords.length > 0 && (
+          {!!uploadResult.invalidRecords && uploadResult.invalidRecords.length > 0 && (
             <div className="mt-3">
               <button 
                 onClick={toggleDetails}
-                className={`text-sm font-medium underline focus:outline-none ${!uploadResult.success ? 'text-red-800' : 'text-amber-600'}`}
+                className={`text-sm font-medium underline focus:outline-none ${!uploadResult.success ? 'text-red-800' : 'text-amber-600'} hover:cursor-pointer`}
                 aria-expanded={showDetails}
                 aria-controls="error-details"
               >
@@ -167,8 +165,8 @@ export default function UploadForm() {
                       </li>
                     ))}
                   </ul>
-                  {uploadResult.invalidCount && uploadResult.invalidCount > uploadResult.invalidRecords.length && (
-                    <p className="mt-2 italic">Showing {uploadResult.invalidRecords.length} of {uploadResult.invalidCount} invalid records</p>
+                  {!!uploadResult.invalidCount && uploadResult.invalidCount > (uploadResult.invalidRecords?.length || 0) && (
+                    <p className="mt-2 italic">Showing {uploadResult.invalidRecords?.length} of {uploadResult.invalidCount} invalid records</p>
                   )}
                 </div>
               )}

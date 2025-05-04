@@ -25,43 +25,46 @@ export default async function FixtureDetailPage(props: { params: Promise<{ id: s
   const dateTimeString = fixtureDate.toISOString();
 
   return (
-    <main className="flex flex-col min-h-screen p-6">
+    <div className="flex flex-col min-h-screen p-6 bg-gray-50">
       <nav className="mb-6" aria-label="Breadcrumb navigation">
-        <Link href="/fixtures" className="text-gray-200 hover:text-white">
+        <Link href="/fixtures" className="text-gray-600 hover:text-blue-600">
           ← Back to all fixtures
         </Link>
       </nav>
       
       <article className="bg-white shadow-sm rounded-lg overflow-hidden p-6">
         <header className="flex justify-between items-center border-b pb-4 mb-6">
-          <h1 className="text-2xl font-bold text-blue-600">Match Details</h1>
+          <h1 className="text-2xl font-bold text-blue-900">Match Details</h1>
           <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
             Round {fixture.fixture_round}
           </span>
         </header>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <section className="md:col-span-2" aria-labelledby="teams-heading">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:items-stretch">
+          <section className="md:col-span-2 h-full" aria-labelledby="teams-heading">
             <h2 id="teams-heading" className="sr-only">Teams Information</h2>
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-              <div className="text-center flex-1">
-                <p className="font-bold text-lg text-gray-600">{fixture.home_team}</p>
-                <p className="text-sm text-gray-500">Home Team</p>
-              </div>
-              
-              <div className="text-center text-2xl font-bold px-4 text-gray-600">vs</div>
-              
-              <div className="text-center flex-1">
-                <p className="font-bold text-lg text-gray-600">{fixture.away_team}</p>
-                <p className="text-sm text-gray-500">Away Team</p>
+            <div className="flex flex-col h-full bg-blue-50 rounded-lg">
+              <h3 className="font-bold p-4 pb-2 text-gray-600">Teams</h3>
+              <div className="flex items-center justify-between p-4 pt-0 flex-grow">
+                <div className="text-center flex-1">
+                  <p className="font-bold text-lg md:text-2xl text-gray-600">{fixture.home_team}</p>
+                  <p className="text-sm md:text-lg text-gray-500">Home Team</p>
+                </div>
+                
+                <div className="text-center text-2xl md:text-4xl font-bold px-4 text-gray-600">vs</div>
+                
+                <div className="text-center flex-1">
+                  <p className="font-bold text-lg md:text-2xl text-gray-600">{fixture.away_team}</p>
+                  <p className="text-sm md:text-lg text-gray-500">Away Team</p>
+                </div>
               </div>
             </div>
           </section>
           
-          <aside>
-            <section className="bg-gray-50 p-4 rounded-lg" aria-labelledby="match-info-heading">
+          <aside className="h-full">
+            <section className="bg-blue-50 p-4 rounded-lg flex flex-col h-full" aria-labelledby="match-info-heading">
               <h2 id="match-info-heading" className="font-bold mb-2 text-gray-600">Match Information</h2>
-              <dl className="space-y-2 text-gray-600">
+              <dl className="space-y-2 text-gray-600 flex-grow">
                 <div>
                   <dt className="inline font-medium">Date:</dt>
                   <dd className="inline ml-1">
@@ -91,6 +94,6 @@ export default async function FixtureDetailPage(props: { params: Promise<{ id: s
           </aside>
         </div>
       </article>
-    </main>
+    </div>
   );
 }
