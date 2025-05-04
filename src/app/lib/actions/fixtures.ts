@@ -2,6 +2,7 @@
 
 import { connectToDatabase } from '../utils/db';
 import { Fixture } from '../models/fixture';
+import { Fixture as FixtureType } from '../definitions';
 
 export async function searchFixtures(query: string) {
   try {
@@ -26,7 +27,7 @@ export async function searchFixtures(query: string) {
     .sort({ fixture_datetime: 1 })
     .lean();
 
-    return { success: true, fixtures };
+    return { success: true, fixtures: fixtures as unknown as FixtureType[] };
   } catch (error) {
     console.error('Search error:', error);
     return { 
@@ -36,7 +37,7 @@ export async function searchFixtures(query: string) {
   }
 }
 
-export async function getFixture(id: string) {
+export async function getFixture(id: string): Promise<{ success: boolean; fixture?: FixtureType; message?: string }> {
   try {
     await connectToDatabase();
     
@@ -46,7 +47,7 @@ export async function getFixture(id: string) {
       return { success: false, message: 'Fixture not found' };
     }
     
-    return { success: true, fixture };
+    return { success: true, fixture: fixture as unknown as FixtureType };
   } catch (error) {
     console.error('Get fixture error:', error);
     return { 

@@ -1,8 +1,8 @@
 import Search from '../ui/fixtures/search';
 import FixtureList from '../ui/fixtures/fixture-list';
 import { searchFixtures } from '../lib/actions/fixtures';
-import { Fixture } from '@/app/lib/definitions';
 import Link from 'next/link';
+import { Fixture } from '../lib/definitions';
 
 export default async function FixturesPage(props: {
   searchParams?: Promise<{

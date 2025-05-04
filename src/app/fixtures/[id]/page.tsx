@@ -1,4 +1,3 @@
-import { Fixture } from '@/app/lib/definitions';
 import { getFixture } from '../../lib/actions/fixtures';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -13,7 +12,7 @@ export default async function FixtureDetailPage(props: { params: Promise<{ id: s
   }
 
   // Type assertion to ensure TypeScript recognizes the fixture properties
-  const typedFixture = fixture as unknown as Fixture;
+  const typedFixture = fixture;
 
   // Format the date for display
   const fixtureDate = new Date(typedFixture.fixture_datetime);
