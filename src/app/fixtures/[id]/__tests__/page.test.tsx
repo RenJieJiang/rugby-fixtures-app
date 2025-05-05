@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, Mock } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import FixtureDetailPage from "../page";
 import { getFixture } from "@/app/lib/actions/fixtures";
@@ -36,7 +36,7 @@ describe("FixtureDetailPage", () => {
   });
 
   it("renders the fixture details correctly", async () => {
-    // Mock a successful fixture response
+    // ARRANGE - Setup test fixture and mock response
     const mockFixture: Fixture = {
       fixture_mid: "123",
       fixture_datetime: "2025-06-15T14:30:00Z",
@@ -47,8 +47,8 @@ describe("FixtureDetailPage", () => {
       season: 2025,
     };
 
-    // Use Vitest's Mock type instead of Jest's
-    (getFixture as unknown as Mock).mockResolvedValue({
+    // Mock the getFixture function
+    vi.mocked(getFixture).mockResolvedValue({
       success: true,
       fixture: mockFixture,
     });
@@ -57,10 +57,11 @@ describe("FixtureDetailPage", () => {
     const props = {
       params: Promise.resolve({ id: "123" }),
     };
+    
+    // ACT - Render the component
+    render(await FixtureDetailPage(props));
 
-    const page = await FixtureDetailPage(props);
-    render(page);
-
+    // ASSERT - Verify rendered output
     // Check if fixture details are rendered
     expect(screen.getByText("England")).toBeInTheDocument();
     expect(screen.getByText("France")).toBeInTheDocument();
@@ -69,19 +70,19 @@ describe("FixtureDetailPage", () => {
     expect(screen.getByText("Round 3")).toBeInTheDocument();
     expect(screen.getByText("2025")).toBeInTheDocument();
     expect(screen.getByText("123")).toBeInTheDocument();
-
+    
     // Check breadcrumb navigation
     expect(screen.getByText("← Back to all fixtures")).toBeInTheDocument();
-
+    
     // Check formatting of dates (the exact format will depend on locale, so we test if elements exist)
-    // For example, we know there's "Date:" and "Time:" labels
     expect(screen.getByText("Date:")).toBeInTheDocument();
     expect(screen.getByText("Time:")).toBeInTheDocument();
   });
 
   it("calls notFound when fixture is not found", async () => {
+    // ARRANGE - Setup fixture not found response
     // Mock an unsuccessful fixture response
-    (getFixture as unknown as Mock).mockResolvedValue({
+    vi.mocked(getFixture).mockResolvedValue({
       success: false,
       fixture: undefined,
     });
@@ -90,17 +91,19 @@ describe("FixtureDetailPage", () => {
     const props = {
       params: Promise.resolve({ id: "invalid-id" }),
     };
-
+    
+    // ACT & ASSERT - Verify notFound is called
     // We expect this to throw an error because of our custom notFound mock
     await expect(FixtureDetailPage(props)).rejects.toThrow("NEXT_NOT_FOUND");
-
+    
     // Check if notFound was called
     expect(notFound).toHaveBeenCalled();
   });
 
   it("calls getFixture with the correct ID", async () => {
-    // Mock a successful fixture response
-    (getFixture as unknown as Mock).mockResolvedValue({
+    // ARRANGE - Setup successful response
+    // Mock a server action with a successful fixture response
+    vi.mocked(getFixture).mockResolvedValue({
       success: true,
       fixture: {
         // Minimal fixture data
@@ -113,14 +116,16 @@ describe("FixtureDetailPage", () => {
         season: 2025,
       },
     });
-
+    
     // Create props with a specific ID
     const props = {
       params: Promise.resolve({ id: "456" }),
     };
-
+    
+    // ACT - Call the component function
     await FixtureDetailPage(props);
-
+    
+    // ASSERT - Verify correct parameters were passed
     // Check if getFixture was called with the correct ID
     expect(getFixture).toHaveBeenCalledWith("456");
   });

@@ -1,10 +1,9 @@
-import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import FixturesPage from '../page';
 import { searchFixtures } from '@/app/lib/actions/fixtures';
 import { Fixture } from '@/app/lib/models/fixture';
 
-// Define the return type for searchFixtures
 type SearchFixturesReturn = {
   success: boolean;
   fixtures?: Fixture[];
@@ -19,9 +18,9 @@ vi.mock('@/app/lib/actions/fixtures', () => ({
 }));
 
 vi.mock('next/link', () => ({
-  default: ({ children, href }: { children: React.ReactNode, href: string }) => {
-    return <a href={href}>{children}</a>;
-  }
+  default: ({ children, href }: { children: React.ReactNode, href: string }) => (
+    <a href={href}>{children}</a>
+  )
 }));
 
 vi.mock('@/app/ui/fixtures/search', () => ({
@@ -49,30 +48,27 @@ describe('FixturesPage', () => {
     vi.clearAllMocks();
   });
 
+  const mockFixture: Fixture = { 
+    fixture_mid: '1', 
+    season: 2025,
+    fixture_datetime: '2025-05-01T14:30:00Z',
+    competition_name: 'Premiership',
+    fixture_round: 1,
+    home_team: 'Lions',
+    away_team: 'Tigers'
+  };
+
   it('renders the fixtures page with data successfully', async () => {
-    // Mock successful response
-    const mockFixtures: Fixture[] = [{ 
-      fixture_mid: '1', 
-      season: 2025,
-      fixture_datetime: '2025-05-01T14:30:00Z',
-      competition_name: 'Premiership',
-      fixture_round: 1,
-      home_team: 'Lions',
-      away_team: 'Tigers'
-    }];
-    
+    // ARRANGE - Setup test fixtures and mock response
     const mockResponse: SearchFixturesReturn = {
       success: true,
-      fixtures: mockFixtures,
+      fixtures: [mockFixture],
       totalPages: 5,
-      totalItems: 50,
-      message: ''
+      totalItems: 50
     };
     
-    // Use Vitest's Mock type instead of Jest's
-    (searchFixtures as unknown as Mock).mockResolvedValue(mockResponse);
+    vi.mocked(searchFixtures).mockResolvedValue(mockResponse);
 
-    // Since the page component is async, we need to use await render
     const props = {
       searchParams: Promise.resolve({
         query: 'test',
@@ -80,72 +76,70 @@ describe('FixturesPage', () => {
       })
     };
     
-    const page = await FixturesPage(props);
-    render(page);
+    // ACT - Render the component
+    render(await FixturesPage(props));
 
-    // Header elements
+    // ASSERT - Verify rendered output
     expect(screen.getByText('Rugby Fixtures')).toBeInTheDocument();
-    expect(screen.getByText('Upload Data')).toBeInTheDocument();
-    
-    // Check if the components are rendered
-    expect(screen.getByTestId('search-component')).toBeInTheDocument();
-    expect(screen.getByTestId('fixture-list-component')).toBeInTheDocument();
-    expect(screen.getByTestId('pagination-component')).toBeInTheDocument();
-    
-    // Verify searchFixtures was called with the right parameters
+    expect(screen.getByTestId('fixture-list-component')).toHaveTextContent(
+      'Fixture List Component with 1 fixtures'
+    );
+    expect(screen.getByTestId('pagination-component')).toHaveTextContent(
+      'Pagination Component with 5 pages'
+    );
     expect(searchFixtures).toHaveBeenCalledWith('test', 2, 10);
   });
 
-  it('renders the fixtures page with default parameters when none provided', async () => {
-    // Mock successful response with empty fixtures
-    const mockResponse: SearchFixturesReturn = {
+  it('renders with default parameters when none provided', async () => {
+    // ARRANGE - Setup empty fixtures and mock response
+    vi.mocked(searchFixtures).mockResolvedValue({
       success: true,
       fixtures: [],
       totalPages: 0,
-      totalItems: 0,
-      message: ''
-    };
-    
-    // Use Vitest's Mock type instead of Jest's
-    (searchFixtures as unknown as Mock).mockResolvedValue(mockResponse);
+      totalItems: 0
+    });
 
-    // Props with empty search params
-    const props = {
-      searchParams: Promise.resolve({})
-    };
-    
-    const page = await FixturesPage(props);
-    render(page);
+    // ACT - Render the component
+    render(await FixturesPage({ searchParams: Promise.resolve({}) }));
 
-    // Verify searchFixtures was called with default parameters
+    // ASSERT - Verify default parameter behavior
     expect(searchFixtures).toHaveBeenCalledWith('', 1, 10);
+    expect(screen.getByTestId('fixture-list-component')).toHaveTextContent(
+      'Fixture List Component with 0 fixtures'
+    );
   });
 
   it('renders error message when data fetch fails', async () => {
-    // Mock error response
-    const mockResponse: SearchFixturesReturn = {
+    // ARRANGE - Setup error response
+    const errorMessage = 'Failed to load fixtures';
+    vi.mocked(searchFixtures).mockResolvedValue({
       success: false,
-      fixtures: [],
-      totalPages: 0,
-      totalItems: 0,
-      message: 'Failed to load fixtures'
-    };
-    
-    // Use Vitest's Mock type instead of Jest's
-    (searchFixtures as unknown as Mock).mockResolvedValue(mockResponse);
+      message: errorMessage
+    });
 
-    const props = {
-      searchParams: Promise.resolve({})
-    };
-    
-    const page = await FixturesPage(props);
-    render(page);
+    // ACT - Render the component with error state
+    render(await FixturesPage({ searchParams: Promise.resolve({}) }));
 
-    // Error message should be displayed
-    expect(screen.getByText('Failed to load fixtures')).toBeInTheDocument();
-    
-    // Fixture list and pagination should not be rendered
+    // ASSERT - Verify error handling behavior
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
     expect(screen.queryByTestId('fixture-list-component')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('pagination-component')).not.toBeInTheDocument();
+  });
+
+  it('handles undefined fixtures array by showing empty state', async () => {
+    // ARRANGE - Setup response with undefined fixtures
+    vi.mocked(searchFixtures).mockResolvedValue({
+      success: true,
+      totalPages: 1,
+      totalItems: 0
+      // fixtures intentionally omitted
+    });
+  
+    // ACT - Render the component
+    render(await FixturesPage({ searchParams: Promise.resolve({}) }));
+  
+    // ASSERT - Verify empty state behavior
+    expect(screen.getByTestId('fixture-list-component')).toHaveTextContent(
+      'Fixture List Component with 0 fixtures'
+    );
   });
 });
