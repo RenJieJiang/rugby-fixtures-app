@@ -25,7 +25,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/rugby-icon.png" />
       </head>
       <body
-        className={`${inter.className} bg-amber-50 min-h-screen flex flex-col`}
+        className={`${inter.className} bg-amber-50 min-h-screen min-w-[375px] flex flex-col`}
       >
         <header>
           <nav

@@ -12,7 +12,7 @@ export default function Search() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('query')?.toString() || '');
   
   // Update URL with debounced search query
-  const handleSearch = useDebouncedCallback((term) => {
+  const handleSearch = useDebouncedCallback((term: string) => {
     const params = new URLSearchParams(searchParams);
     
     if (term) {
