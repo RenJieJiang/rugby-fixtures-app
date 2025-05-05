@@ -2,7 +2,11 @@ import { getFixture } from '../../lib/actions/fixtures';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-export default async function FixtureDetailPage(props: { params: Promise<{ id: string }> }) {
+interface FixtureDetailPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function FixtureDetailPage(props: FixtureDetailPageProps) {
   const params = await props.params;
   const id = params.id;
   const { success, fixture } = await getFixture(id);

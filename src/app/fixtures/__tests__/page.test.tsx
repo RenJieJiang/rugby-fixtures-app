@@ -59,7 +59,7 @@ describe('FixturesPage', () => {
   };
 
   it('renders the fixtures page with data successfully', async () => {
-    // ARRANGE - Setup test fixtures and mock response
+    // Arrange
     const mockResponse: SearchFixturesReturn = {
       success: true,
       fixtures: [mockFixture],
@@ -76,10 +76,10 @@ describe('FixturesPage', () => {
       })
     };
     
-    // ACT - Render the component
+    // Act
     render(await FixturesPage(props));
 
-    // ASSERT - Verify rendered output
+    // Assert
     expect(screen.getByText('Rugby Fixtures')).toBeInTheDocument();
     expect(screen.getByTestId('fixture-list-component')).toHaveTextContent(
       'Fixture List Component with 1 fixtures'
@@ -91,7 +91,7 @@ describe('FixturesPage', () => {
   });
 
   it('renders with default parameters when none provided', async () => {
-    // ARRANGE - Setup empty fixtures and mock response
+    // Arrange
     vi.mocked(searchFixtures).mockResolvedValue({
       success: true,
       fixtures: [],
@@ -99,10 +99,10 @@ describe('FixturesPage', () => {
       totalItems: 0
     });
 
-    // ACT - Render the component
+    // Act
     render(await FixturesPage({ searchParams: Promise.resolve({}) }));
 
-    // ASSERT - Verify default parameter behavior
+    // Assert
     expect(searchFixtures).toHaveBeenCalledWith('', 1, 10);
     expect(screen.getByTestId('fixture-list-component')).toHaveTextContent(
       'Fixture List Component with 0 fixtures'
@@ -110,23 +110,23 @@ describe('FixturesPage', () => {
   });
 
   it('renders error message when data fetch fails', async () => {
-    // ARRANGE - Setup error response
+    // Arrange
     const errorMessage = 'Failed to load fixtures';
     vi.mocked(searchFixtures).mockResolvedValue({
       success: false,
       message: errorMessage
     });
 
-    // ACT - Render the component with error state
+    // Act
     render(await FixturesPage({ searchParams: Promise.resolve({}) }));
 
-    // ASSERT - Verify error handling behavior
+    // Assert
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
     expect(screen.queryByTestId('fixture-list-component')).not.toBeInTheDocument();
   });
 
   it('handles undefined fixtures array by showing empty state', async () => {
-    // ARRANGE - Setup response with undefined fixtures
+    // Arrange
     vi.mocked(searchFixtures).mockResolvedValue({
       success: true,
       totalPages: 1,
@@ -134,10 +134,10 @@ describe('FixturesPage', () => {
       // fixtures intentionally omitted
     });
   
-    // ACT - Render the component
+    // Act
     render(await FixturesPage({ searchParams: Promise.resolve({}) }));
   
-    // ASSERT - Verify empty state behavior
+    // Assert
     expect(screen.getByTestId('fixture-list-component')).toHaveTextContent(
       'Fixture List Component with 0 fixtures'
     );

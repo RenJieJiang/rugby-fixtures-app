@@ -36,7 +36,7 @@ describe("FixtureDetailPage", () => {
   });
 
   it("renders the fixture details correctly", async () => {
-    // ARRANGE - Setup test fixture and mock response
+    // Arrange
     const mockFixture: Fixture = {
       fixture_mid: "123",
       fixture_datetime: "2025-06-15T14:30:00Z",
@@ -58,10 +58,10 @@ describe("FixtureDetailPage", () => {
       params: Promise.resolve({ id: "123" }),
     };
     
-    // ACT - Render the component
+    // Act
     render(await FixtureDetailPage(props));
 
-    // ASSERT - Verify rendered output
+    // Assert 
     // Check if fixture details are rendered
     expect(screen.getByText("England")).toBeInTheDocument();
     expect(screen.getByText("France")).toBeInTheDocument();
@@ -80,8 +80,7 @@ describe("FixtureDetailPage", () => {
   });
 
   it("calls notFound when fixture is not found", async () => {
-    // ARRANGE - Setup fixture not found response
-    // Mock an unsuccessful fixture response
+    // Arrange: Mock an unsuccessful fixture response
     vi.mocked(getFixture).mockResolvedValue({
       success: false,
       fixture: undefined,
@@ -92,21 +91,18 @@ describe("FixtureDetailPage", () => {
       params: Promise.resolve({ id: "invalid-id" }),
     };
     
-    // ACT & ASSERT - Verify notFound is called
+    // Assert
     // We expect this to throw an error because of our custom notFound mock
     await expect(FixtureDetailPage(props)).rejects.toThrow("NEXT_NOT_FOUND");
     
-    // Check if notFound was called
     expect(notFound).toHaveBeenCalled();
   });
 
   it("calls getFixture with the correct ID", async () => {
-    // ARRANGE - Setup successful response
-    // Mock a server action with a successful fixture response
+    // Arrange: Mock a server action with a successful fixture response
     vi.mocked(getFixture).mockResolvedValue({
       success: true,
       fixture: {
-        // Minimal fixture data
         fixture_mid: "456",
         fixture_datetime: "2025-06-15T14:30:00Z",
         competition_name: "Six Nations",
@@ -122,11 +118,10 @@ describe("FixtureDetailPage", () => {
       params: Promise.resolve({ id: "456" }),
     };
     
-    // ACT - Call the component function
+    // Act
     await FixtureDetailPage(props);
     
-    // ASSERT - Verify correct parameters were passed
-    // Check if getFixture was called with the correct ID
+    // Act
     expect(getFixture).toHaveBeenCalledWith("456");
   });
 });
