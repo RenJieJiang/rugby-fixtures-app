@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
+import { useActionState } from 'react';
 import { uploadCSV } from '../../lib/actions/upload';
 import { CSVFixture } from '../../lib/models/fixture';
 import { ValidationErrorFormat } from '../../lib/actions/upload';
 
-// Import the ValidationErrorFormat type or define it if not exported
 type InvalidRecord = {
   rowNumber: number;
   data: CSVFixture;
@@ -21,36 +21,44 @@ type UploadResult = {
   invalidRecords?: InvalidRecord[];
 };
 
+type UploadState = {
+  result: UploadResult | null;
+};
+
+const initialState: UploadState = {
+  result: null
+};
+
 export default function UploadForm() {
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
-  const [showDetails, setShowDetails] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [state, formAction, isPending] = useActionState(handleUpload, initialState);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
-  async function handleSubmit(formData: FormData) {
-    setIsUploading(true);
-    setUploadResult(null);
-    setShowDetails(false);
-    
+  const [showResults, setShowResults] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
+  
+  const handleSubmit = () => {
+      setShowResults(true);
+      setShowDetails(false);
+  };
+
+  async function handleUpload(prevState: UploadState, formData: FormData) {
     try {
       const result = await uploadCSV(formData);
-      setUploadResult(result);
-      
-      if (result.success && formRef.current) {
-        formRef.current.reset(); // Reset form if successful
-      }
+      return { 
+        result
+      };
     } catch (error) {
-      setUploadResult({ 
-        success: false, 
-        message: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
-      });
-    } finally {
-      setIsUploading(false);
+      return { 
+        result: { 
+          success: false, 
+          message: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+        }
+      };
     }
   }
 
-  function toggleDetails() {
-    setShowDetails(prev => !prev);
+  function handleToggleDetails() {
+    setShowDetails(!showDetails);
   }
 
   // Format error details for display
@@ -74,13 +82,15 @@ export default function UploadForm() {
       .join('; ');
   }
 
+  const { result } = state;
+
   return (
     <section className="w-full max-w-xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <header>
         <h2 className="text-xl font-bold mb-6 text-blue-900">Upload Rugby Fixtures CSV</h2>
       </header>
       
-      <form ref={formRef} action={handleSubmit} className="space-y-6" aria-label="Upload CSV form">
+      <form action={formAction} onSubmit={handleSubmit} className="space-y-6" aria-label="Upload CSV form">
         <fieldset>
           <legend className="sr-only">File upload fields</legend>
           <div className="mb-4">
@@ -94,6 +104,10 @@ export default function UploadForm() {
               accept=".csv"
               required
               aria-required="true"
+              ref={fileInputRef}
+              onChange={() => {
+                setShowResults(false);
+              }}
               className="block w-full text-sm text-gray-500
                         file:mr-4 file:py-2 file:px-4
                         file:rounded-md file:border-0
@@ -106,43 +120,53 @@ export default function UploadForm() {
         
           <button
             type="submit"
-            disabled={isUploading}
+            disabled={isPending}
             className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300 transition-colors duration-200"
-            aria-busy={isUploading}
+            aria-busy={isPending}
           >
-            {isUploading ? 'Uploading...' : 'Upload CSV'}
+            {isPending ? 'Uploading...' : 'Upload CSV'}
           </button>
         </fieldset>
       </form>
 
-      {uploadResult && (
+      {/* loading indicator for better visibility */}
+      {isPending && (
+        <div className="mt-4 flex justify-center">
+          <div className="text-center text-blue-600">
+            <div className="inline-block animate-pulse">Processing your file...</div>
+          </div>
+        </div>
+      )}
+
+      {result && showResults && (
         <aside 
-          className={`mt-6 p-4 rounded-md ${uploadResult.success ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`} 
+          className={`mt-6 p-4 rounded-md ${result.success ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`} 
           role="status" 
           aria-live="polite"
         >
-          <p className="text-sm font-medium">{uploadResult.message}</p>
+          <p className="text-sm font-medium">{result.message}</p>
           
-          {uploadResult.success ? (
+          {result.success ? (
             <div className="mt-2 text-sm">
-              <p>Successfully inserted {uploadResult.count} fixtures.</p>
-              {(uploadResult.duplicates ?? 0) > 0 && (
-                <p>{uploadResult.duplicates} duplicates were skipped.</p>
+              <p>Successfully inserted {result.count} fixtures.</p>
+              {(result.duplicates ?? 0) > 0 && (
+                <p>{result.duplicates} duplicates were skipped.</p>
               )}
-              {(uploadResult.invalidCount ?? 0) > 0 && (
-                <p className="text-amber-600">{uploadResult.invalidCount} records had validation errors.</p>
+              {(result.invalidCount ?? 0) > 0 && (
+                <p className="text-amber-600">{result.invalidCount} records had validation errors.</p>
               )}
             </div>
           ) : null}
           
           {/* Show invalid records if available - regardless of success state */}
-          {!!uploadResult.invalidRecords && uploadResult.invalidRecords.length > 0 && (
+          {!!result.invalidRecords && result.invalidRecords.length > 0 && (
             <div className="mt-3">
               <button 
-                onClick={toggleDetails}
-                className={`text-sm font-medium underline focus:outline-none ${!uploadResult.success ? 'text-red-800' : 'text-amber-600'} hover:cursor-pointer`}
+                onClick={handleToggleDetails}
+                className={`text-sm font-medium underline focus:outline-none ${!result.success ? 'text-red-800' : 'text-amber-600'} hover:cursor-pointer`}
                 aria-expanded={showDetails}
                 aria-controls="error-details"
+                type="button"
               >
                 {showDetails ? 'Hide error details' : 'Show error details'}
               </button>
@@ -151,7 +175,7 @@ export default function UploadForm() {
                 <div id="error-details" className="mt-2 text-sm bg-white bg-opacity-50 p-3 rounded max-h-60 overflow-auto">
                   <h3 className="font-medium mb-2">Invalid records:</h3>
                   <ul className="space-y-3">
-                    {uploadResult.invalidRecords.map((record, index) => (
+                    {result.invalidRecords.map((record, index) => (
                       <li key={index} className="border-b border-red-200 pb-2">
                         <div><strong>Row {record.rowNumber}:</strong></div>
                         <div className="text-xs">
@@ -165,8 +189,8 @@ export default function UploadForm() {
                       </li>
                     ))}
                   </ul>
-                  {!!uploadResult.invalidCount && uploadResult.invalidCount > (uploadResult.invalidRecords?.length || 0) && (
-                    <p className="mt-2 italic">Showing {uploadResult.invalidRecords?.length} of {uploadResult.invalidCount} invalid records</p>
+                  {!!result.invalidCount && result.invalidCount > (result.invalidRecords?.length || 0) && (
+                    <p className="mt-2 italic">Showing {result.invalidRecords?.length} of {result.invalidCount} invalid records</p>
                   )}
                 </div>
               )}
