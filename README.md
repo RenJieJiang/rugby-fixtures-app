@@ -18,7 +18,21 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Inter](https://fonts.google.com/specimen/Inter), a clean and modern sans-serif font designed for computer screens.
+
+## Testing
+
+This project uses [Vitest](https://vitest.dev/) for unit testing. Run the tests with:
+
+```bash
+npm test
+# or
+npm run test:watch   # Run in watch mode
+```
+
+Tests are located in `__tests__` directories adjacent to the files they test. For example, components in `src/ui/fixtures/` have their tests in `src/ui/fixtures/__tests__/`.
+
+To create a new test file, follow the naming convention: `[filename].test.tsx`.
 
 ## Learn More
 
