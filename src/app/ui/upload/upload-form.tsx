@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useActionState } from 'react';
 import { uploadCSV } from '../../lib/actions/upload';
 import { CSVFixture } from '../../lib/models/fixture';
@@ -35,6 +35,13 @@ export default function UploadForm() {
   
   const [showResults, setShowResults] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
+  
+  // Clear file input when upload is successful
+  useEffect(() => {
+    if (state.result?.success && fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, [state.result]);
   
   const handleSubmit = () => {
       setShowResults(true);
