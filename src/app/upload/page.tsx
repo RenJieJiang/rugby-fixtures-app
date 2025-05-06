@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import { FixtureSchema } from '../lib/models/fixture';
 import UploadForm from '../ui/upload/upload-form';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Upload Fixtures Data",
+};
 
 export default function UploadPage() {
   const fixtureKeysString = Object.keys(FixtureSchema.shape).join(', ');

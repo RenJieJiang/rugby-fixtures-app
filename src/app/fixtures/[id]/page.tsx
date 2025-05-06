@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import { getFixture } from '../../lib/actions/fixtures';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -5,6 +6,10 @@ import { notFound } from 'next/navigation';
 interface FixtureDetailPageProps {
   params: Promise<{ id: string }>;
 }
+
+export const metadata: Metadata = {
+  title: "Browse Fixture Details",
+};
 
 export default async function FixtureDetailPage(props: FixtureDetailPageProps) {
   const params = await props.params;

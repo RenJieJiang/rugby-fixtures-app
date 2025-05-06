@@ -5,6 +5,11 @@ import Pagination from '../ui/fixtures/pagination';
 import { searchFixtures } from '../lib/actions/fixtures';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Browse Fixtures",
+};
 
 interface FixturesPageProps {
   searchParams?: Promise<{
