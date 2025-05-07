@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import MobileNavigation from "@/app/ui/navigation/mobile-navigation";
+import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body
         className={`${inter.className} bg-amber-50 min-h-screen min-w-[375px] flex flex-col`}
       >
+        <Toaster position="top-center" />
         <header>
           <nav
             aria-label="Header Navigation"

@@ -1,6 +1,7 @@
 import { Fixture } from '@/app/lib/models/fixture';
 import Link from 'next/link';
 import { FixtureTableContainer, FixtureTableHeader } from './fixture-table-components';
+import { DeleteFixtureButton } from './buttons';
 
 export default function FixtureList({ fixtures }: { fixtures: Fixture[] }) {
   if (fixtures.length === 0) {
@@ -46,13 +47,16 @@ export default function FixtureList({ fixtures }: { fixtures: Fixture[] }) {
                   {fixture.away_team}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <Link 
-                    href={`/fixtures/${fixture.fixture_mid}`}
-                    className="text-blue-600 hover:text-blue-900"
-                    aria-label={`View details for ${fixture.home_team} vs ${fixture.away_team}`}
-                  >
-                    View Details
-                  </Link>
+                  <div className="flex items-center space-x-2">
+                    <Link 
+                      href={`/fixtures/${fixture.fixture_mid}`}
+                      className="text-blue-600 hover:text-blue-900"
+                      aria-label={`View details for ${fixture.home_team} vs ${fixture.away_team}`}
+                    >
+                      View Details
+                    </Link>
+                    <DeleteFixtureButton id={fixture.fixture_mid} compact={true} />
+                  </div>
                 </td>
               </tr>
             );
@@ -94,13 +98,16 @@ export default function FixtureList({ fixtures }: { fixtures: Fixture[] }) {
                 <div className="text-sm text-gray-500">
                   Round: {fixture.fixture_round}
                 </div>
-                <Link 
-                  href={`/fixtures/${fixture.fixture_mid}`}
-                  className="text-sm text-blue-600 hover:text-blue-900 font-medium"
-                  aria-label={`View details for ${fixture.home_team} vs ${fixture.away_team}`}
-                >
-                  View Details
-                </Link>
+                <div className="flex items-center space-x-2">
+                  <Link 
+                    href={`/fixtures/${fixture.fixture_mid}`}
+                    className="text-sm text-blue-600 hover:text-blue-900 font-medium"
+                    aria-label={`View details for ${fixture.home_team} vs ${fixture.away_team}`}
+                  >
+                    View Details
+                  </Link>
+                  <DeleteFixtureButton id={fixture.fixture_mid} compact={true} />
+                </div>
               </div>
             </div>
           );
