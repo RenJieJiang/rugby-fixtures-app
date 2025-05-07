@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 
-export default function Search() {
+export default function Search( { placeholder = 'Search teams...' } : { placeholder?: string }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -38,7 +38,7 @@ export default function Search() {
           setSearchQuery(newValue);
           handleSearch(newValue);
         }}
-        placeholder="Search teams..."
+        placeholder= {placeholder}
         className="block w-full rounded-md border border-gray-400 py-2.5 pl-10 pr-12 text-gray-800 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
       />
       <div className="absolute inset-y-0 left-0 flex items-center pl-3">

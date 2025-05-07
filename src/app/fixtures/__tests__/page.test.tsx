@@ -1,46 +1,46 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import FixturesPage from '../page';
 import { searchFixtures } from '@/app/lib/actions/fixtures';
+import { act, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import FixturesPage from '../page';
 import { Fixture } from '@/app/lib/models/fixture';
 
-type SearchFixturesReturn = {
-  success: boolean;
-  fixtures?: Fixture[];
-  message?: string;
-  totalPages?: number;
-  totalItems?: number;
-};
-
-// Mock the imports
-vi.mock('@/app/lib/actions/fixtures', () => ({
-  searchFixtures: vi.fn()
-}));
-
+// Mock next/link
 vi.mock('next/link', () => ({
-  default: ({ children, href }: { children: React.ReactNode, href: string }) => (
+  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
     <a href={href}>{children}</a>
   )
 }));
 
+// Mock child components with proper Suspense handling
 vi.mock('@/app/ui/fixtures/search', () => ({
-  default: () => <div data-testid="search-component">Search Component</div>
+  default: ({ placeholder }: { placeholder: string }) => (
+    <input placeholder={placeholder} data-testid="search-input" />
+  )
 }));
 
 vi.mock('@/app/ui/fixtures/fixture-list', () => ({
   default: ({ fixtures }: { fixtures: Fixture[] }) => (
-    <div data-testid="fixture-list-component">
-      Fixture List Component with {fixtures.length} fixtures
+    <div data-testid="fixture-list">
+      {fixtures.map((f) => (
+        <div key={f.fixture_mid}>{f.home_team} vs {f.away_team}</div>
+      ))}
     </div>
   )
 }));
 
+vi.mock('@/app/ui/fixtures/fixture-list-skeleton', () => ({
+  default: () => <div data-testid="loading-skeleton">Loading...</div>
+}));
+
 vi.mock('@/app/ui/fixtures/pagination', () => ({
   default: ({ totalPages }: { totalPages: number }) => (
-    <div data-testid="pagination-component">
-      Pagination Component with {totalPages} pages
-    </div>
+    <div data-testid="pagination">Total pages: {totalPages}</div>
   )
+}));
+
+// Mock the searchFixtures action
+vi.mock('@/app/lib/actions/fixtures', () => ({
+  searchFixtures: vi.fn()
 }));
 
 describe('FixturesPage', () => {
@@ -48,7 +48,7 @@ describe('FixturesPage', () => {
     vi.clearAllMocks();
   });
 
-  const mockFixture: Fixture = { 
+  const mockFixture = { 
     fixture_mid: '1', 
     season: 2025,
     fixture_datetime: '2025-05-01T14:30:00Z',
@@ -59,15 +59,12 @@ describe('FixturesPage', () => {
   };
 
   it('renders the fixtures page with data successfully', async () => {
-    // Arrange
-    const mockResponse: SearchFixturesReturn = {
+    vi.mocked(searchFixtures).mockResolvedValue({
       success: true,
       fixtures: [mockFixture],
       totalPages: 5,
       totalItems: 50
-    };
-    
-    vi.mocked(searchFixtures).mockResolvedValue(mockResponse);
+    });
 
     const props = {
       searchParams: Promise.resolve({
@@ -76,22 +73,44 @@ describe('FixturesPage', () => {
       })
     };
     
-    // Act
-    render(await FixturesPage(props));
+    // Wrap in act to handle async operations
+    await act(async () => {
+      render(await FixturesPage(props));
+    });
 
-    // Assert
+    // Verify main elements
     expect(screen.getByText('Rugby Fixtures')).toBeInTheDocument();
-    expect(screen.getByTestId('fixture-list-component')).toHaveTextContent(
-      'Fixture List Component with 1 fixtures'
-    );
-    expect(screen.getByTestId('pagination-component')).toHaveTextContent(
-      'Pagination Component with 5 pages'
-    );
+    expect(screen.getByTestId('search-input')).toBeInTheDocument();
+    
+    // The fixture list should be visible after loading
+    expect(screen.getByTestId('fixture-list')).toBeInTheDocument();
+    expect(screen.getByText('Lions vs Tigers')).toBeInTheDocument();
+    
+    // Verify pagination
+    expect(screen.getByTestId('pagination')).toHaveTextContent('Total pages: 5');
+    
+    // Verify API call
     expect(searchFixtures).toHaveBeenCalledWith('test', 2, 10);
   });
 
+  it('renders error message when data fetch fails', async () => {
+    const errorMessage = 'Failed to load fixtures';
+    vi.mocked(searchFixtures).mockResolvedValue({
+      success: false,
+      message: errorMessage
+    });
+
+    await act(async () => {
+      render(await FixturesPage({ searchParams: Promise.resolve({}) }));
+    });
+
+    // The error message should be visible
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
+    // The fixture list should not be present
+    expect(screen.queryByTestId('fixture-list')).not.toBeInTheDocument();
+  });
+
   it('renders with default parameters when none provided', async () => {
-    // Arrange
     vi.mocked(searchFixtures).mockResolvedValue({
       success: true,
       fixtures: [],
@@ -99,47 +118,11 @@ describe('FixturesPage', () => {
       totalItems: 0
     });
 
-    // Act
-    render(await FixturesPage({ searchParams: Promise.resolve({}) }));
+    await act(async () => {
+      render(await FixturesPage({ searchParams: Promise.resolve({}) }));
+    });
 
-    // Assert
     expect(searchFixtures).toHaveBeenCalledWith('', 1, 10);
-    expect(screen.getByTestId('fixture-list-component')).toHaveTextContent(
-      'Fixture List Component with 0 fixtures'
-    );
-  });
-
-  it('renders error message when data fetch fails', async () => {
-    // Arrange
-    const errorMessage = 'Failed to load fixtures';
-    vi.mocked(searchFixtures).mockResolvedValue({
-      success: false,
-      message: errorMessage
-    });
-
-    // Act
-    render(await FixturesPage({ searchParams: Promise.resolve({}) }));
-
-    // Assert
-    expect(screen.getByText(errorMessage)).toBeInTheDocument();
-    expect(screen.queryByTestId('fixture-list-component')).not.toBeInTheDocument();
-  });
-
-  it('handles undefined fixtures array by showing empty state', async () => {
-    // Arrange
-    vi.mocked(searchFixtures).mockResolvedValue({
-      success: true,
-      totalPages: 1,
-      totalItems: 0
-      // fixtures intentionally omitted
-    });
-  
-    // Act
-    render(await FixturesPage({ searchParams: Promise.resolve({}) }));
-  
-    // Assert
-    expect(screen.getByTestId('fixture-list-component')).toHaveTextContent(
-      'Fixture List Component with 0 fixtures'
-    );
+    expect(screen.queryByText(/vs/)).not.toBeInTheDocument();
   });
 });

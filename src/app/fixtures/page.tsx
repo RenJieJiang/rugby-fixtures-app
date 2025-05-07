@@ -39,7 +39,7 @@ export default async function FixturesPage(props: FixturesPageProps) {
       
       <section aria-labelledby="search-heading" className="mb-8">
         <h2 id="search-heading" className="sr-only">Search fixtures</h2>
-        <Search />
+        <Search placeholder="Search teams..." />
       </section>
       
       <Suspense fallback={

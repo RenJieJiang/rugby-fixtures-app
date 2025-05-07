@@ -9,6 +9,9 @@ const mockToString = vi.fn();
 
 vi.mock('next/navigation', () => ({
   usePathname: () => '/fixtures',
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
   useSearchParams: () => ({
     get: mockGet,
     toString: mockToString,
