@@ -8,18 +8,13 @@ import {
   FixtureArraySchema,
 } from "../models/fixture";
 import { revalidatePath } from "next/cache";
+import { DeleteActionResponse, FixtureActionResponse, PaginatedResponse } from "./types";
 
 export async function searchFixtures(
   query: string,
   page: number = 1,
   pageSize: number = 10
-): Promise<{
-  success: boolean;
-  fixtures?: Fixture[];
-  message?: string;
-  totalPages?: number;
-  totalItems?: number;
-}> {
+): Promise<PaginatedResponse<Fixture>> {
   try {
     await connectToDatabase();
 
@@ -62,7 +57,7 @@ export async function searchFixtures(
     // Return the validated data with pagination info
     return {
       success: true,
-      fixtures: validation.data,
+      data: validation.data,
       totalPages,
       totalItems,
     };
@@ -77,11 +72,7 @@ export async function searchFixtures(
   }
 }
 
-export async function getFixture(id: string): Promise<{
-  success: boolean;
-  fixture?: Fixture;
-  message?: string;
-}> {
+export async function getFixture(id: string): Promise<FixtureActionResponse> {
   try {
     await connectToDatabase();
 
@@ -104,7 +95,7 @@ export async function getFixture(id: string): Promise<{
     }
 
     // Return the validated data - MongoDB fields are already stripped
-    return { success: true, fixture: validation.data };
+    return { success: true, data: validation.data };
   } catch (error) {
     console.error("Get fixture error:", error);
     return {
@@ -116,10 +107,7 @@ export async function getFixture(id: string): Promise<{
   }
 }
 
-export async function deleteFixture(id: string): Promise<{
-  success: boolean;
-  message?: string;
-}> {
+export async function deleteFixture(id: string): Promise<DeleteActionResponse> {
   try {
     if (!id) {
       return { success: false, message: "Fixture ID is required" };

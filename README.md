@@ -1,4 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rugby Fixtures App
+
+A Next.js application for tracking and managing rugby fixtures with an intuitive interface and responsive design.
+
+**Live Demo:** [https://nextjs-dashboard-app-eta-mocha.vercel.app/](https://nextjs-dashboard-app-eta-mocha.vercel.app/)
+
+## Features
+
+- **Browse Fixtures**: View a list of all rugby fixtures with responsive design for desktop and mobile
+- **Search Functionality**: Search for specific teams to filter fixtures
+- **Fixture Details**: View detailed information about each fixture
+- **Upload CSV Data**: Import rugby fixtures data from CSV files
+- **Delete Fixtures**: Remove fixtures from the database
+- **Pagination**: Navigate through multiple pages of fixtures
+
+## Tech Stack
+
+- **Framework**: [Next.js 15](https://nextjs.org/) with App Router
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Database**: [MongoDB](https://www.mongodb.com/) via Mongoose
+- **Form Handling**: React with server actions
+- **Data Validation**: [Zod](https://zod.dev/)
+- **Testing**: [Vitest](https://vitest.dev/) with React Testing Library
+- **UI Components**: Custom components with responsive design
+- **Notifications**: [React Hot Toast](https://react-hot-toast.com/)
 
 ## Getting Started
 
@@ -19,6 +43,35 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Inter](https://fonts.google.com/specimen/Inter), a clean and modern sans-serif font designed for computer screens.
+
+## Project Structure
+
+```
+src/
+  app/                  # Next.js App Router
+    fixtures/           # Fixtures list and detail pages
+    lib/                # Server-side utilities
+      actions/          # Server actions for data operations
+      models/           # Data models and schemas
+      utils/            # Helper utilities
+    ui/                 # UI components
+      fixtures/         # Fixture-related components
+      navigation/       # Navigation components
+      upload/           # Upload-related components
+    upload/             # Upload page
+```
+
+## Data Model
+
+The application uses the following data model for fixtures:
+
+- `fixture_mid`: Unique identifier for the fixture
+- `season`: Year of the fixture season
+- `competition_name`: Name of the competition
+- `fixture_datetime`: Date and time of the fixture
+- `fixture_round`: Round number of the fixture
+- `home_team`: Name of the home team
+- `away_team`: Name of the away team
 
 ## Testing
 

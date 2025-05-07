@@ -1,7 +1,6 @@
 import { Fixture } from '@/app/lib/models/fixture';
-import Link from 'next/link';
+import { DeleteFixtureButton, ViewDetailsButton } from './buttons';
 import { FixtureTableContainer, FixtureTableHeader } from './fixture-table-components';
-import { DeleteFixtureButton } from './buttons';
 
 export default function FixtureList({ fixtures }: { fixtures: Fixture[] }) {
   if (fixtures.length === 0) {
@@ -48,13 +47,11 @@ export default function FixtureList({ fixtures }: { fixtures: Fixture[] }) {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <div className="flex items-center space-x-2">
-                    <Link 
-                      href={`/fixtures/${fixture.fixture_mid}`}
-                      className="text-blue-600 hover:text-blue-900"
-                      aria-label={`View details for ${fixture.home_team} vs ${fixture.away_team}`}
-                    >
-                      View Details
-                    </Link>
+                    <ViewDetailsButton 
+                      id={fixture.fixture_mid} 
+                      teamNames={`${fixture.home_team} vs ${fixture.away_team}`}
+                      compact={true} 
+                    />
                     <DeleteFixtureButton id={fixture.fixture_mid} compact={true} />
                   </div>
                 </td>
@@ -99,13 +96,11 @@ export default function FixtureList({ fixtures }: { fixtures: Fixture[] }) {
                   Round: {fixture.fixture_round}
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Link 
-                    href={`/fixtures/${fixture.fixture_mid}`}
-                    className="text-sm text-blue-600 hover:text-blue-900 font-medium"
-                    aria-label={`View details for ${fixture.home_team} vs ${fixture.away_team}`}
-                  >
-                    View Details
-                  </Link>
+                  <ViewDetailsButton 
+                    id={fixture.fixture_mid} 
+                    teamNames={`${fixture.home_team} vs ${fixture.away_team}`}
+                    compact={true} 
+                  />
                   <DeleteFixtureButton id={fixture.fixture_mid} compact={true} />
                 </div>
               </div>

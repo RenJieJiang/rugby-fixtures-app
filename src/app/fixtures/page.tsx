@@ -64,7 +64,7 @@ async function FixturesContent({
   currentPage: number; 
   pageSize: number;
 }) {
-  const { success, fixtures, message, totalPages } = await searchFixtures(
+  const { success, data: fixtures, message, totalPages } = await searchFixtures(
     query,
     currentPage,
     pageSize

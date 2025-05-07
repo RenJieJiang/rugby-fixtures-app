@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default async function FixtureDetailPage(props: FixtureDetailPageProps) {
   const params = await props.params;
   const id = params.id;
-  const { success, fixture } = await getFixture(id);
+  const { success, data: fixture } = await getFixture(id);
   
   if (!success || !fixture) {
     notFound();
